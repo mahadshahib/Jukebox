@@ -47,7 +47,7 @@ open class JukeboxItem: NSObject {
             var delegate: JukeboxItemDelegate?
     fileprivate var didLoad = false
     open  var localTitle: String?
-    open  let URL: Foundation.URL
+    public  let URL: Foundation.URL
     
     fileprivate(set) open var playerItem: AVPlayerItem?
     fileprivate (set) open var currentTime: Double?
@@ -136,7 +136,7 @@ open class JukeboxItem: NSObject {
     }
     
     open override var description: String {
-        return "<JukeboxItem:\ntitle: \(meta.title)\nalbum: \(meta.album)\nartist:\(meta.artist)\nduration : \(meta.duration),\ncurrentTime : \(currentTime)\nURL: \(URL)>"
+        return "<JukeboxItem:\ntitle: \(String(describing: meta.title))\nalbum: \(String(describing: meta.album))\nartist:\(String(describing: meta.artist))\nduration : \(String(describing: meta.duration)),\ncurrentTime : \(String(describing: currentTime))\nURL: \(URL)>"
     }
     
     // MARK:- Private methods -
@@ -161,7 +161,7 @@ open class JukeboxItem: NSObject {
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(JukeboxItem.notifyDelegate), userInfo: nil, repeats: false)
     }
     
-    func notifyDelegate() {
+    @objc func notifyDelegate() {
         timer?.invalidate()
         timer = nil
         self.delegate?.jukeboxItemDidUpdate(self)
@@ -185,7 +185,7 @@ open class JukeboxItem: NSObject {
             
             for item in metadataArray
             {
-                item.loadValuesAsynchronously(forKeys: [AVMetadataKeySpaceCommon], completionHandler: { () -> Void in
+                item.loadValuesAsynchronously(forKeys: [AVMetadataKeySpace.common.rawValue], completionHandler: { () -> Void in
                     self.meta.process(metaItem: item)
                     DispatchQueue.main.async {
                         self.scheduleNotification()
@@ -199,7 +199,7 @@ open class JukeboxItem: NSObject {
 private extension JukeboxItem.Meta {
     mutating func process(metaItem item: AVMetadataItem) {
         
-        switch item.commonKey
+        switch item.commonKey?.rawValue
         {
         case "title"? :
             title = item.value as? String
